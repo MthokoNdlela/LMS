@@ -90,6 +90,9 @@ public class LoanProductsController(AppDbContext db) : ApiControllerBase
         p.MonthlyServiceFee = r.MonthlyServiceFee;
         p.LateFeeAmount = r.LateFeeAmount;
         p.ArrearsGraceDays = r.ArrearsGraceDays;
+        p.StressTestRatePoints = r.StressTestRatePoints;
+        p.BureauMinScore = r.BureauMinScore;
+        p.BureauReferScore = r.BureauReferScore;
         p.IsActive = r.IsActive;
     }
 }

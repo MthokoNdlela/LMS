@@ -20,6 +20,12 @@ public class LoanProduct
     public decimal MonthlyServiceFee { get; set; }
     public decimal LateFeeAmount { get; set; }
     public int ArrearsGraceDays { get; set; }
+
+    // Affordability policy applied when assessing an application for this product.
+    public decimal StressTestRatePoints { get; set; } = 3m;
+    public int BureauMinScore { get; set; } = 600;
+    public int BureauReferScore { get; set; } = 650;
+
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

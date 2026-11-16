@@ -41,6 +41,20 @@ namespace LoanManagement.Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<bool?>("BureauHasAdverseListing")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("BureauOutcome")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("BureauReference")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int?>("BureauScore")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("DebtToIncomeRatio")
                         .HasPrecision(7, 2)
                         .HasColumnType("decimal(7,2)");
@@ -85,7 +99,22 @@ namespace LoanManagement.Api.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<string>("OutcomeReasons")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
                     b.Property<decimal>("ProposedInstallment")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool?>("StressTestPassed")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("StressedDisposableAfterLoan")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("StressedInstallment")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -536,6 +565,16 @@ namespace LoanManagement.Api.Migrations
                     b.Property<int>("ArrearsGraceDays")
                         .HasColumnType("int");
 
+                    b.Property<int>("BureauMinScore")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(600);
+
+                    b.Property<int>("BureauReferScore")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(650);
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -582,6 +621,12 @@ namespace LoanManagement.Api.Migrations
                         .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");
 
+                    b.Property<decimal>("StressTestRatePoints")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)")
+                        .HasDefaultValue(3m);
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
@@ -595,6 +640,8 @@ namespace LoanManagement.Api.Migrations
                             Id = 1,
                             AnnualInterestRate = 18.5m,
                             ArrearsGraceDays = 5,
+                            BureauMinScore = 600,
+                            BureauReferScore = 650,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Unsecured personal loan with reducing-balance interest.",
                             InterestMethod = "ReducingBalance",
@@ -606,7 +653,8 @@ namespace LoanManagement.Api.Migrations
                             MinTermMonths = 6,
                             MonthlyServiceFee = 60m,
                             Name = "Personal Loan",
-                            OriginationFeePercent = 2.5m
+                            OriginationFeePercent = 2.5m,
+                            StressTestRatePoints = 3m
                         });
                 });
 

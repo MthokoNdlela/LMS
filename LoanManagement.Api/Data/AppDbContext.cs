@@ -109,6 +109,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ICurrentUser c
             e.Property(x => x.Description).HasMaxLength(500);
             e.Property(x => x.AnnualInterestRate).HasPrecision(5, 2);
             e.Property(x => x.OriginationFeePercent).HasPrecision(5, 2);
+            e.Property(x => x.StressTestRatePoints).HasPrecision(5, 2).HasDefaultValue(3m);
+            e.Property(x => x.BureauMinScore).HasDefaultValue(600);
+            e.Property(x => x.BureauReferScore).HasDefaultValue(650);
             e.HasIndex(x => x.Name).IsUnique();
             e.HasData(new LoanProduct
             {
@@ -149,6 +152,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ICurrentUser c
             e.Property(x => x.DebtToIncomeRatio).HasPrecision(7, 2);
             e.Property(x => x.Notes).HasMaxLength(1000);
             e.Property(x => x.AssessedBy).HasMaxLength(100);
+            e.Property(x => x.BureauReference).HasMaxLength(30);
+            e.Property(x => x.OutcomeReasons).HasMaxLength(2000);
             e.HasOne(x => x.LoanApplication).WithMany(a => a.Assessments)
                 .HasForeignKey(x => x.LoanApplicationId).OnDelete(DeleteBehavior.Restrict);
         });

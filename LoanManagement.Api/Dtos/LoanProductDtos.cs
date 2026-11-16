@@ -17,6 +17,9 @@ public class LoanProductRequest : IValidatableObject
     [Range(0d, 1_000_000d)] public decimal MonthlyServiceFee { get; set; }
     [Range(0d, 1_000_000d)] public decimal LateFeeAmount { get; set; }
     [Range(0, 365)] public int ArrearsGraceDays { get; set; }
+    [Range(0d, 20d)] public decimal StressTestRatePoints { get; set; } = 3m;
+    [Range(300, 850)] public int BureauMinScore { get; set; } = 600;
+    [Range(300, 850)] public int BureauReferScore { get; set; } = 650;
     public bool IsActive { get; set; } = true;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -25,16 +28,20 @@ public class LoanProductRequest : IValidatableObject
             yield return new ValidationResult("MinAmount cannot exceed MaxAmount.", [nameof(MinAmount)]);
         if (MinTermMonths > MaxTermMonths)
             yield return new ValidationResult("MinTermMonths cannot exceed MaxTermMonths.", [nameof(MinTermMonths)]);
+        if (BureauMinScore > BureauReferScore)
+            yield return new ValidationResult("BureauMinScore cannot exceed BureauReferScore.", [nameof(BureauMinScore)]);
     }
 }
 
 public record LoanProductResponse(
     int Id, string Name, string? Description, InterestMethod InterestMethod, decimal AnnualInterestRate,
     decimal MinAmount, decimal MaxAmount, int MinTermMonths, int MaxTermMonths, decimal OriginationFeePercent,
-    decimal MonthlyServiceFee, decimal LateFeeAmount, int ArrearsGraceDays, bool IsActive, DateTime CreatedAt)
+    decimal MonthlyServiceFee, decimal LateFeeAmount, int ArrearsGraceDays, decimal StressTestRatePoints,
+    int BureauMinScore, int BureauReferScore, bool IsActive, DateTime CreatedAt)
 {
     public static LoanProductResponse From(LoanProduct p) =>
         new(p.Id, p.Name, p.Description, p.InterestMethod, p.AnnualInterestRate, p.MinAmount, p.MaxAmount,
             p.MinTermMonths, p.MaxTermMonths, p.OriginationFeePercent, p.MonthlyServiceFee, p.LateFeeAmount,
-            p.ArrearsGraceDays, p.IsActive, p.CreatedAt);
+            p.ArrearsGraceDays, p.StressTestRatePoints, p.BureauMinScore, p.BureauReferScore, p.IsActive,
+            p.CreatedAt);
 }

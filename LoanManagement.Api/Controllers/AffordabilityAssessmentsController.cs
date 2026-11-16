@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LoanManagement.Api.Controllers;
 
 [Route("api/loan-applications/{applicationId:int}/assessments")]
-public class AffordabilityAssessmentsController(AppDbContext db, ICurrentUser user) : ApiControllerBase
+public class AffordabilityAssessmentsController(AppDbContext db, ICurrentUser user, ICreditBureau bureau) : ApiControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AssessmentResponse>>> GetAll(int applicationId, CancellationToken ct)
@@ -33,27 +33,26 @@ public class AffordabilityAssessmentsController(AppDbContext db, ICurrentUser us
     [HttpPost]
     public async Task<ActionResult<AssessmentResponse>> Create(int applicationId, AssessmentRequest request, CancellationToken ct)
     {
-        var application = await db.LoanApplications.Include(a => a.LoanProduct)
+        var application = await db.LoanApplications.Include(a => a.LoanProduct).Include(a => a.Customer)
             .FirstOrDefaultAsync(a => a.Id == applicationId, ct);
         if (application is null) return NotFound();
 
         if (application.Status is not (ApplicationStatus.Submitted or ApplicationStatus.UnderReview))
             return ConflictProblem($"Assessments can only be recorded for submitted applications (current status: {application.Status}).");
 
-        var product = application.LoanProduct;
-        var proposedInstallment = LoanCalculator.MonthlyPayment(
-            application.RequestedAmount, product.AnnualInterestRate, application.TermMonths) + product.MonthlyServiceFee;
-
+        var creditReport = await bureau.CheckAsync(application.Customer, ct);
         var assessment = AffordabilityCalculator.Assess(
-            request.GrossMonthlyIncome, request.NetMonthlyIncome, request.MonthlyExpenses,
-            request.MonthlyDebtObligations, proposedInstallment);
+            new AffordabilityInputs(
+                request.GrossMonthlyIncome, request.NetMonthlyIncome, request.MonthlyExpenses,
+                request.MonthlyDebtObligations, application.RequestedAmount, application.TermMonths),
+            application.LoanProduct, creditReport);
         assessment.LoanApplicationId = applicationId;
         assessment.Notes = request.Notes?.Trim();
         assessment.AssessedBy = user.Username;
 
         db.AffordabilityAssessments.Add(assessment);
         db.Audit("AffordabilityAssessment.Created", assessment,
-            $"Application {application.ApplicationNumber}: {assessment.Outcome}, DTI {assessment.DebtToIncomeRatio:0.00}%");
+            $"Application {application.ApplicationNumber}: {assessment.Outcome}, DTI {assessment.DebtToIncomeRatio:0.00}%, bureau {assessment.BureauScore}. {assessment.OutcomeReasons}".Trim());
         await db.SaveChangesAsync(ct);
 
         return CreatedAtAction(nameof(Get), new { applicationId, id = assessment.Id }, AssessmentResponse.From(assessment));

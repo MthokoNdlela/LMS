@@ -74,6 +74,9 @@ export interface LoanProductRequest {
   monthlyServiceFee: number;
   lateFeeAmount: number;
   arrearsGraceDays: number;
+  stressTestRatePoints: number;
+  bureauMinScore: number;
+  bureauReferScore: number;
   isActive: boolean;
 }
 
@@ -128,6 +131,15 @@ export interface Assessment extends AssessmentRequest {
   outcome: AffordabilityOutcome;
   assessedAt: string;
   assessedBy: string | null;
+  // Null on assessments recorded before these checks existed.
+  stressedInstallment: number;
+  stressedDisposableAfterLoan: number;
+  stressTestPassed: boolean | null;
+  bureauScore: number | null;
+  bureauHasAdverseListing: boolean | null;
+  bureauReference: string | null;
+  bureauOutcome: AffordabilityOutcome | null;
+  outcomeReasons: string | null;
 }
 
 export interface DecisionRequest {

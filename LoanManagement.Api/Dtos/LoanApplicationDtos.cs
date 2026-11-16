@@ -56,10 +56,14 @@ public record AssessmentResponse(
     int Id, int LoanApplicationId, decimal GrossMonthlyIncome, decimal NetMonthlyIncome, decimal MonthlyExpenses,
     decimal MonthlyDebtObligations, decimal ProposedInstallment, decimal DisposableIncome, decimal DisposableAfterLoan,
     decimal DebtToIncomeRatio, decimal MaxAffordableInstallment, AffordabilityOutcome Outcome, string? Notes,
-    DateTime AssessedAt, string? AssessedBy)
+    DateTime AssessedAt, string? AssessedBy, decimal StressedInstallment, decimal StressedDisposableAfterLoan,
+    bool? StressTestPassed, int? BureauScore, bool? BureauHasAdverseListing, string? BureauReference,
+    AffordabilityOutcome? BureauOutcome, string? OutcomeReasons)
 {
     public static AssessmentResponse From(AffordabilityAssessment a) =>
         new(a.Id, a.LoanApplicationId, a.GrossMonthlyIncome, a.NetMonthlyIncome, a.MonthlyExpenses,
             a.MonthlyDebtObligations, a.ProposedInstallment, a.DisposableIncome, a.DisposableAfterLoan,
-            a.DebtToIncomeRatio, a.MaxAffordableInstallment, a.Outcome, a.Notes, a.AssessedAt, a.AssessedBy);
+            a.DebtToIncomeRatio, a.MaxAffordableInstallment, a.Outcome, a.Notes, a.AssessedAt, a.AssessedBy,
+            a.StressedInstallment, a.StressedDisposableAfterLoan, a.StressTestPassed, a.BureauScore,
+            a.BureauHasAdverseListing, a.BureauReference, a.BureauOutcome, a.OutcomeReasons);
 }

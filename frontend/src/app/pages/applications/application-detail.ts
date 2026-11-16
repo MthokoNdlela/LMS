@@ -97,8 +97,43 @@ import { HumanizePipe } from '../../shared/humanize.pipe';
             </div>
           }
 
+          @if (latest(); as s) {
+            <h3>Checks on the latest assessment <app-badge [value]="s.outcome" /></h3>
+            @if (s.outcomeReasons) { <div class="alert info">{{ s.outcomeReasons }}</div> }
+            <table class="table">
+              <thead><tr><th>Check</th><th>Detail</th><th>Result</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Debt-to-income</td>
+                  <td>{{ s.debtToIncomeRatio | number: '1.2-2' }}% (pass up to 40%, refer up to 50%)</td>
+                  <td><app-badge [value]="s.debtToIncomeRatio > 50 ? 'Fail' : s.debtToIncomeRatio > 40 ? 'Refer' : 'Pass'" /></td>
+                </tr>
+                <tr>
+                  <td>Stress test</td>
+                  <td>
+                    @if (s.stressTestPassed === null) { - } @else {
+                      Instalment rises to {{ s.stressedInstallment | number: '1.2-2' }}; {{ s.stressedDisposableAfterLoan | number: '1.2-2' }} would be left
+                    }
+                  </td>
+                  <td>@if (s.stressTestPassed === null) { <span class="muted">Not recorded</span> } @else { <app-badge [value]="s.stressTestPassed ? 'Pass' : 'Refer'" /> }</td>
+                </tr>
+                <tr>
+                  <td>Credit bureau</td>
+                  <td>
+                    @if (s.bureauScore === null) { - } @else {
+                      Score {{ s.bureauScore }}, {{ s.bureauHasAdverseListing ? 'adverse listing' : 'no adverse listing' }}
+                      <span class="muted">({{ s.bureauReference }}, simulated)</span>
+                    }
+                  </td>
+                  <td>@if (s.bureauOutcome === null) { <span class="muted">Not recorded</span> } @else { <app-badge [value]="s.bureauOutcome" /> }</td>
+                </tr>
+              </tbody>
+            </table>
+          }
+
           @if (a.status === 'Submitted' || a.status === 'UnderReview') {
             <h3>Record an assessment</h3>
+            <p class="muted">The credit bureau is checked automatically using the customer's ID number (simulated in this demo), and the product's stress-test rule is applied.</p>
             <form [formGroup]="assessForm" (ngSubmit)="assess(a.id)">
               <div class="form-grid">
                 <div class="field"><label for="gross">Gross monthly income</label><input id="gross" type="number" step="0.01" formControlName="grossMonthlyIncome" /></div>
@@ -160,6 +195,7 @@ export class ApplicationDetail implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly message = signal<string | null>(null);
 
+  protected readonly latest = computed(() => this.assessments()[0] ?? null);
   protected readonly checklist = computed(() =>
     REQUIRED_DOCUMENT_TYPES.map((type) => ({
       type,

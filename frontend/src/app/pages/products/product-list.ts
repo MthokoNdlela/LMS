@@ -35,6 +35,21 @@ import { Badge } from '../../shared/badge';
             <div class="field"><label for="service">Monthly service fee</label><input id="service" type="number" step="0.01" formControlName="monthlyServiceFee" /></div>
             <div class="field"><label for="late">Late fee</label><input id="late" type="number" step="0.01" formControlName="lateFeeAmount" /></div>
             <div class="field"><label for="grace">Arrears grace (days)</label><input id="grace" type="number" formControlName="arrearsGraceDays" /></div>
+            <div class="field">
+              <label for="stress">Stress test (+ rate points)</label>
+              <input id="stress" type="number" step="0.01" formControlName="stressTestRatePoints" />
+              <span class="hint">Instalment is re-tested at the rate plus this margin.</span>
+            </div>
+            <div class="field">
+              <label for="bmin">Bureau minimum score</label>
+              <input id="bmin" type="number" formControlName="bureauMinScore" />
+              <span class="hint">Below this the assessment fails.</span>
+            </div>
+            <div class="field">
+              <label for="bref">Bureau refer score</label>
+              <input id="bref" type="number" formControlName="bureauReferScore" />
+              <span class="hint">Below this the assessment is referred.</span>
+            </div>
             <div class="field"><label>Interest method</label><input value="Reducing balance" disabled /></div>
             <div class="field check"><input id="active" type="checkbox" formControlName="isActive" /><label for="active">Active</label></div>
           </div>
@@ -54,7 +69,7 @@ import { Badge } from '../../shared/badge';
             <thead>
               <tr>
                 <th>Name</th><th class="num">Rate</th><th class="num">Amount</th><th class="num">Term</th>
-                <th class="num">Origination</th><th class="num">Service fee</th><th class="num">Late fee</th><th>Status</th><th></th>
+                <th class="num">Origination</th><th class="num">Service fee</th><th class="num">Late fee</th><th>Affordability policy</th><th>Status</th><th></th>
               </tr>
             </thead>
             <tbody>
@@ -67,6 +82,10 @@ import { Badge } from '../../shared/badge';
                   <td class="num">{{ p.originationFeePercent | number: '1.2-2' }}%</td>
                   <td class="num">{{ p.monthlyServiceFee | number: '1.2-2' }}</td>
                   <td class="num">{{ p.lateFeeAmount | number: '1.2-2' }} <span class="muted">after {{ p.arrearsGraceDays }}d</span></td>
+                  <td class="nowrap">
+                    <div>Stress +{{ p.stressTestRatePoints | number: '1.0-2' }} pts</div>
+                    <div>Bureau {{ p.bureauMinScore }} / {{ p.bureauReferScore }}</div>
+                  </td>
                   <td><app-badge [value]="p.isActive ? 'Active' : 'Inactive'" /></td>
                   <td class="right nowrap">
                     <button class="btn sm" type="button" (click)="startEdit(p)">Edit</button>
@@ -102,6 +121,9 @@ export class ProductList implements OnInit {
     monthlyServiceFee: [0, [Validators.required, Validators.min(0)]],
     lateFeeAmount: [0, [Validators.required, Validators.min(0)]],
     arrearsGraceDays: [0, [Validators.required, Validators.min(0)]],
+    stressTestRatePoints: [3, [Validators.required, Validators.min(0), Validators.max(20)]],
+    bureauMinScore: [600, [Validators.required, Validators.min(300), Validators.max(850)]],
+    bureauReferScore: [650, [Validators.required, Validators.min(300), Validators.max(850)]],
     isActive: [true],
   });
 
