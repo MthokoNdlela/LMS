@@ -58,7 +58,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+}
 
+// Migrations run on startup in Development. In any other environment (for example Production on EC2)
+// set Database__ApplyMigrationsOnStartup=true to apply them; a failed migration stops the app from starting.
+if (app.Configuration.GetValue("Database:ApplyMigrationsOnStartup", app.Environment.IsDevelopment()))
+{
     using var scope = app.Services.CreateScope();
     scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.Migrate();
 }
